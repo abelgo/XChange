@@ -21,7 +21,21 @@
 	</organization>
 
 	<!-- Parent provides default configuration for dependencies -->
-	<dependencies>
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>2.3.2</version>
+                <configuration>
+                    <source>1.8</source>
+                    <target>1.8</target>
+                    <showDeprecation>false</showDeprecation>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+    <dependencies>
 
 		<!-- Third party dependencies -->
 		<dependency>
@@ -35,11 +49,6 @@
 		</dependency>
 
 		<dependency>
-			<groupId>com.github.mmazi</groupId>
-			<artifactId>rescu</artifactId>
-		</dependency>
-
-		<dependency>
 			<groupId>net.iharder</groupId>
 			<artifactId>base64</artifactId>
 		</dependency>
@@ -48,6 +57,10 @@
             <groupId>commons-io</groupId>
             <artifactId>commons-io</artifactId>
         </dependency>
-
-	</dependencies>
+	 
+        <dependency>
+            <groupId>com.github.mmazi</groupId>
+            <artifactId>rescu</artifactId>
+        </dependency>
+    </dependencies>
 </project>
