@@ -57,7 +57,6 @@ public class PoloniexExchange extends BaseExchange implements Exchange {
 
   @Override
   public SynchronizedValueFactory<Long> getNonceFactory() {
-
     return nonceFactory;
   }
 }
