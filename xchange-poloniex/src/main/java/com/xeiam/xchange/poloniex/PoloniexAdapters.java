@@ -21,6 +21,7 @@ import com.xeiam.xchange.poloniex.dto.trade.PoloniexOpenOrder;
 import com.xeiam.xchange.poloniex.dto.trade.PoloniexUserTrade;
 
 import java.math.BigDecimal;
+import java.time.Instant;
 import java.util.*;
 
 /**
@@ -36,10 +37,10 @@ public class PoloniexAdapters {
     BigDecimal last = marketData.getLast();
     BigDecimal bid = marketData.getHighestBid();
     BigDecimal ask = marketData.getLowestAsk();
-    BigDecimal high = null;
-    BigDecimal low = null;
+    BigDecimal high = marketData.getHigh24hr();
+    BigDecimal low = marketData.getLow24hr();
     BigDecimal volume = marketData.getQuoteVolume();
-
+    
     return new Ticker.Builder().currencyPair(currencyPair).last(last).bid(bid).ask(ask).high(high).low(low).volume(volume).build();
 
   }

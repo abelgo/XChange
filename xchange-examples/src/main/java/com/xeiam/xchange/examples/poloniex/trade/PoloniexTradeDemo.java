@@ -33,21 +33,22 @@ public class PoloniexTradeDemo {
 
     Exchange poloniex = PoloniexExamplesUtils.getExchange();
     PollingTradeService tradeService = poloniex.getPollingTradeService();
-    currencyPair = new CurrencyPair(Currency.XMR, Currency.BTC);
+    currencyPair = new CurrencyPair(Currency.BLK, Currency.BTC);
 
     /*
      * Make sure this is below the current market rate!!
      */
-    xmrBuyRate = new BigDecimal("0.003");
+    xmrBuyRate = new BigDecimal("0.00005");
 
     generic(tradeService);
-    raw((PoloniexTradeServiceRaw) tradeService);
+ //   raw((PoloniexTradeServiceRaw) tradeService);
   }
 
   private static void generic(PollingTradeService tradeService) throws IOException, InterruptedException {
 
     System.out.println("----------GENERIC----------");
 
+    /*
     PoloniexTradeService.PoloniexTradeHistoryParams params = new PoloniexTradeService.PoloniexTradeHistoryParams();
     params.setCurrencyPair(currencyPair);
     System.out.println(tradeService.getTradeHistory(params));
@@ -59,8 +60,8 @@ public class PoloniexTradeDemo {
     endTime.add(Calendar.HOUR, 4);
     params.setEndTime(endTime.getTime());
     System.out.println(tradeService.getTradeHistory(params));
-
-    LimitOrder order = new LimitOrder.Builder(OrderType.BID, currencyPair).tradableAmount(new BigDecimal(".01")).limitPrice(xmrBuyRate).build();
+*/
+    LimitOrder order = new LimitOrder.Builder(OrderType.BID, currencyPair).tradableAmount(new BigDecimal("200.00")).limitPrice(xmrBuyRate).build();
     String orderId = tradeService.placeLimitOrder(order);
     System.out.println("Placed order #" + orderId);
 
@@ -76,8 +77,10 @@ public class PoloniexTradeDemo {
     }
 
     Thread.sleep(3000); // wait for cancellation to propagate
-
+ 
     System.out.println(tradeService.getOpenOrders());
+    
+    
   }
 
   private static void raw(PoloniexTradeServiceRaw tradeService) throws IOException, InterruptedException {

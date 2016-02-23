@@ -17,136 +17,148 @@ import com.xeiam.xchange.poloniex.dto.marketdata.PoloniexTicker;
 
 public class PoloniexMarketDataServiceRaw extends PoloniexBasePollingService {
 
-  /**
-   * Constructor
-   *
-   * @param exchange
-   */
-  public PoloniexMarketDataServiceRaw(Exchange exchange) {
+    /**
+     * Constructor
+     *
+     * @param exchange
+     */
+    public PoloniexMarketDataServiceRaw(Exchange exchange) {
 
-    super(exchange);
-  }
-
-  public Map<String, PoloniexCurrencyInfo> getPoloniexCurrencyInfo() throws IOException {
-
-    String command = "returnCurrencies";
-
-    try {
-      Map<String, PoloniexCurrencyInfo> currencyInfo = poloniex.getCurrencyInfo(command);
-      return currencyInfo;
-    } catch (PoloniexException e) {
-      throw new ExchangeException(e.getError());
-    }
-  }
-
-  public Map<String, PoloniexMarketData> getAllPoloniexTickers() throws IOException {
-
-    String command = "returnTicker";
-
-    try {
-      Map<String, PoloniexMarketData> marketData = poloniex.getTicker(command);
-      return marketData;
-    } catch (PoloniexException e) {
-      throw new ExchangeException(e.getError());
+        super(exchange);
     }
 
-  }
+    public Map<String, PoloniexCurrencyInfo> getPoloniexCurrencyInfo() throws IOException {
 
-  public PoloniexTicker getPoloniexTicker(CurrencyPair currencyPair) throws IOException {
+        String command = "returnCurrencies";
 
-    String command = "returnTicker";
-    String pairString = PoloniexUtils.toPairString(currencyPair);
-
-    HashMap<String, PoloniexMarketData> marketData;
-    try {
-      marketData = poloniex.getTicker(command);
-    } catch (PoloniexException e) {
-      throw new ExchangeException(e.getError());
+        try {
+            Map<String, PoloniexCurrencyInfo> currencyInfo = poloniex.getCurrencyInfo(command);
+            return currencyInfo;
+        } catch (PoloniexException e) {
+            throw new ExchangeException(e.getError());
+        }
     }
 
-    PoloniexMarketData data = marketData.get(pairString);
+    public Map<String, PoloniexMarketData> getAllPoloniexTickers() throws IOException {
 
-    if (data == null)
-      throw new ExchangeException(currencyPair + " not available");
+        String command = "returnTicker";
 
-    return new PoloniexTicker(data, currencyPair);
+        try {
+            Map<String, PoloniexMarketData> marketData = poloniex.getTicker(command);
+            return marketData;
+        } catch (PoloniexException e) {
+            throw new ExchangeException(e.getError());
+        }
 
-  }
-
-  public PoloniexDepth getPoloniexDepth(CurrencyPair currencyPair) throws IOException {
-
-    String command = "returnOrderBook";
-    String pairString = PoloniexUtils.toPairString(currencyPair);
-
-    try {
-      PoloniexDepth depth = poloniex.getOrderBook(command, pairString);
-      return depth;
-    } catch (PoloniexException e) {
-      throw new ExchangeException(e.getError());
     }
-  }
 
-  public PoloniexDepth getPoloniexDepth(CurrencyPair currencyPair, int depth) throws IOException {
+    // There is no point the query the ticker instantly again when
+    // all tickers are returned on 1 query avaialble in the hash map
+    // lets wait a seconds and save our self a call for each ticker in our callign for loop.
+    
+    private HashMap<String, PoloniexMarketData> TickermarketData;
+    private final long cashe_delay = 1000L;
+    private long next_refresh = System.currentTimeMillis() + cashe_delay;
 
-    String command = "returnOrderBook";
-    String pairString = PoloniexUtils.toPairString(currencyPair);
+    public PoloniexTicker getPoloniexTicker(CurrencyPair currencyPair) throws IOException {
 
-    try {
-      PoloniexDepth limitDepth = poloniex.getOrderBook(command, pairString, depth);
-      return limitDepth;
-    } catch (PoloniexException e) {
-      throw new ExchangeException(e.getError());
+        String command = "returnTicker";
+        String pairString = PoloniexUtils.toPairString(currencyPair);
+        long now = System.currentTimeMillis();
+
+        if (TickermarketData == null || next_refresh < now) {
+            try {
+                TickermarketData = poloniex.getTicker(command);
+            } catch (PoloniexException e) {
+                throw new ExchangeException(e.getError());
+            } finally {
+                // this is also nice becaues in error we take a short break;
+                next_refresh = now + cashe_delay;
+            }
+        }
+        
+        PoloniexMarketData data = TickermarketData.get(pairString);
+        if (data == null) {
+            throw new ExchangeException(currencyPair + " not available");
+        }
+        
+        return new PoloniexTicker(data, currencyPair);
     }
-  }
 
-  public Map<String, PoloniexDepth> getAllPoloniexDepths() throws IOException {
+    public PoloniexDepth getPoloniexDepth(CurrencyPair currencyPair) throws IOException {
 
-    String command = "returnOrderBook";
+        String command = "returnOrderBook";
+        String pairString = PoloniexUtils.toPairString(currencyPair);
 
-    try {
-      Map<String, PoloniexDepth> depths = poloniex.getAllOrderBooks(command, "all", null);
-      return depths;
-    } catch (PoloniexException e) {
-      throw new ExchangeException(e.getError());
+        try {
+            PoloniexDepth depth = poloniex.getOrderBook(command, pairString);
+            return depth;
+        } catch (PoloniexException e) {
+            throw new ExchangeException(e.getError());
+        }
     }
-  }
 
-  public Map<String, PoloniexDepth> getAllPoloniexDepths(int depth) throws IOException {
+    public PoloniexDepth getPoloniexDepth(CurrencyPair currencyPair, int depth) throws IOException {
 
-    String command = "returnOrderBook";
+        String command = "returnOrderBook";
+        String pairString = PoloniexUtils.toPairString(currencyPair);
 
-    try {
-      Map<String, PoloniexDepth> depths = poloniex.getAllOrderBooks(command, "all", depth);
-      return depths;
-    } catch (PoloniexException e) {
-      throw new ExchangeException(e.getError());
+        try {
+            PoloniexDepth limitDepth = poloniex.getOrderBook(command, pairString, depth);
+            return limitDepth;
+        } catch (PoloniexException e) {
+            throw new ExchangeException(e.getError());
+        }
     }
-  }
 
-  public PoloniexPublicTrade[] getPoloniexPublicTrades(CurrencyPair currencyPair) throws IOException {
+    public Map<String, PoloniexDepth> getAllPoloniexDepths() throws IOException {
 
-    String command = "returnTradeHistory";
-    String pairString = PoloniexUtils.toPairString(currencyPair);
+        String command = "returnOrderBook";
 
-    try {
-      PoloniexPublicTrade[] trades = poloniex.getTrades(command, pairString, null, null);
-      return trades;
-    } catch (PoloniexException e) {
-      throw new ExchangeException(e.getError());
+        try {
+            Map<String, PoloniexDepth> depths = poloniex.getAllOrderBooks(command, "all", null);
+            return depths;
+        } catch (PoloniexException e) {
+            throw new ExchangeException(e.getError());
+        }
     }
-  }
 
-  public PoloniexPublicTrade[] getPoloniexPublicTrades(CurrencyPair currencyPair, Long startTime, Long endTime) throws IOException {
+    public Map<String, PoloniexDepth> getAllPoloniexDepths(int depth) throws IOException {
 
-    String command = "returnTradeHistory";
-    String pairString = PoloniexUtils.toPairString(currencyPair);
+        String command = "returnOrderBook";
 
-    try {
-      PoloniexPublicTrade[] trades = poloniex.getTrades(command, pairString, startTime, endTime);
-      return trades;
-    } catch (PoloniexException e) {
-      throw new ExchangeException(e.getError());
+        try {
+            Map<String, PoloniexDepth> depths = poloniex.getAllOrderBooks(command, "all", depth);
+            return depths;
+        } catch (PoloniexException e) {
+            throw new ExchangeException(e.getError());
+        }
     }
-  }
+
+    public PoloniexPublicTrade[] getPoloniexPublicTrades(CurrencyPair currencyPair) throws IOException {
+
+        String command = "returnTradeHistory";
+        String pairString = PoloniexUtils.toPairString(currencyPair);
+
+        try {
+            PoloniexPublicTrade[] trades = poloniex.getTrades(command, pairString, null, null);
+            return trades;
+        } catch (PoloniexException e) {
+            throw new ExchangeException(e.getError());
+        }
+    }
+
+    public PoloniexPublicTrade[] getPoloniexPublicTrades(CurrencyPair currencyPair, Long startTime, Long endTime) throws IOException {
+
+        String command = "returnTradeHistory";
+        String pairString = PoloniexUtils.toPairString(currencyPair);
+
+        try {
+            PoloniexPublicTrade[] trades = poloniex.getTrades(command, pairString, startTime, endTime);
+            return trades;
+        } catch (PoloniexException e) {
+            throw new ExchangeException(e.getError());
+        }
+    }
 
 }

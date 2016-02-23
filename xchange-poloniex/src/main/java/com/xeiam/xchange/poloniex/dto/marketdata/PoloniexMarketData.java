@@ -22,6 +22,50 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 @JsonPropertyOrder({ "last", "lowestAsk", "highestBid", "percentChange", "baseVolume", "quoteVolume" })
 public class PoloniexMarketData {
 
+    /*
+    
+    // 2016-01-20 Example Data  
+    
+   {
+   "BTC_1CR":{
+      "last":"0.00004167",
+      "lowestAsk":"0.00004176",
+      "highestBid":"0.00003394",
+      "percentChange":"0.21416083",
+      "baseVolume":"0.00179470",
+      "quoteVolume":"49.12624943",
+      "isFrozen":"0",
+      "high24hr":"0.00004167",
+      "low24hr":"0.00003432"
+   },
+   "BTC_ABY":{
+      "last":"0.00000018",
+      "lowestAsk":"0.00000019",
+      "highestBid":"0.00000018",
+      "percentChange":"0.00000000",
+      "baseVolume":"0.05255047",
+      "quoteVolume":"286099.08268102",
+      "isFrozen":"0",
+      "high24hr":"0.00000019",
+      "low24hr":"0.00000018"
+   }
+    
+    */
+    
+  @JsonProperty("high24hr")
+  private BigDecimal high24hr;   
+  
+  @JsonProperty("low24hr")
+  private BigDecimal low24hr; 
+
+    public BigDecimal getHigh24hr() {
+        return high24hr;
+    }
+
+    public BigDecimal getLow24hr() {
+        return low24hr;
+    }
+    
   @JsonProperty("last")
   private BigDecimal last;
   @JsonProperty("lowestAsk")
@@ -39,7 +83,6 @@ public class PoloniexMarketData {
 
   @JsonProperty("last")
   public BigDecimal getLast() {
-
     return last;
   }
 
@@ -87,7 +130,6 @@ public class PoloniexMarketData {
 
   @JsonProperty("baseVolume")
   public BigDecimal getBaseVolume() {
-
     return baseVolume;
   }
 
@@ -105,7 +147,6 @@ public class PoloniexMarketData {
 
   @JsonProperty("quoteVolume")
   public void setQuoteVolume(BigDecimal quoteVolume) {
-
     this.quoteVolume = quoteVolume;
   }
 
@@ -117,13 +158,11 @@ public class PoloniexMarketData {
 
   @JsonAnySetter
   public void setAdditionalProperty(String name, Object value) {
-
     this.additionalProperties.put(name, value);
   }
 
   @Override
   public String toString() {
-
     return "PoloniexMarketData [last=" + last + ", lowestAsk=" + lowestAsk + ", highestBid=" + highestBid + ", percentChange=" + percentChange
         + ", baseVolume=" + baseVolume + ", quoteVolume=" + quoteVolume + ", additionalProperties=" + additionalProperties + "]";
   }

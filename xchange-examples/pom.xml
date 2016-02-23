@@ -22,7 +22,19 @@
 	</organization>
 
 	<!-- Parent provides default configuration for dependencies -->
-	<dependencies>
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>2.3.2</version>
+                <configuration>
+                    <showDeprecation>false</showDeprecation>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+    <dependencies>
 
 		<!-- XChange dependencies -->
 		<dependency>
@@ -230,11 +242,6 @@
 			<version>${project.version}</version>
 		</dependency>
 		<!-- XChange Poloniex exchange support -->
-		<dependency>
-			<groupId>${project.groupId}</groupId>
-			<artifactId>xchange-poloniex</artifactId>
-			<version>${project.version}</version>
-		</dependency>
 		<!-- XChange OkCoin exchange support -->
 		<dependency>
 			<groupId>${project.groupId}</groupId>
@@ -389,7 +396,11 @@
 			<artifactId>reflections</artifactId>
 			<version>0.9.10</version>
 		</dependency>
-
+	 <dependency>
+	  <groupId>${project.groupId}</groupId>
+	  <artifactId>xchange-poloniex</artifactId>
+	  <version>${project.version}</version>
+	 </dependency>
 	</dependencies>
 
 </project>
